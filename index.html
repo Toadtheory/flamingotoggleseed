@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial="initial-scale=1.0">
     <title>The Rangebow Festival - Arts, Music, Food</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -305,8 +305,7 @@
 
         <div class="seed-container">
             <label for="uniqueSeedInput">Unique Seed:</label>
-            <input type="text" id="uniqueSeedInput" readonly>
-            <button id="applySeedButton">Apply Seed</button>
+            <input type="text" id="uniqueSeedInput"> <button id="applySeedButton">Apply Seed</button>
             <button id="copySeedButton">Copy Current Seed</button>
         </div>
 
@@ -322,11 +321,11 @@
         const imageBaseUrl = 'https://pub-ec767d62316a441eb6c2ef8cadabc59c.r2.dev/9x16Flamingo_'; 
 
         const fixedImageNumber = 25; 
-        const fixedImageUrl = `${imageBaseUrl}${String(fixedImageNumber).padStart(3, '0')}.jpg`;
+        const fixedImageUrl = `<span class="math-inline">\{imageBaseUrl\}</span>{String(fixedImageNumber).padStart(3, '0')}.jpg`;
         
         // Fixed Image for the Frame (always image 26)
         const framedPortraitImageNumber = 26; 
-        const framedPortraitImageUrl = `${imageBaseUrl}${String(framedPortraitImageNumber).padStart(3, '0')}.jpg`;
+        const framedPortraitImageUrl = `<span class="math-inline">\{imageBaseUrl\}</span>{String(framedPortraitImageNumber).padStart(3, '0')}.jpg`;
 
         let isRandomMode = true; // Tracks if current state is random (true) or fixed/seeded (false)
 
@@ -366,23 +365,22 @@
 
         function getRandomImageUrl() {
             const randomIndex = Math.floor(Math.random() * totalImages) + 1;
-            return { url: `${imageBaseUrl}${String(randomIndex).padStart(3, '0')}.jpg`, number: randomIndex }; // Return URL and number
+            return { url: `<span class="math-inline">\{imageBaseUrl\}</span>{String(randomIndex).padStart(3, '0')}.jpg`, number: randomIndex }; // Return URL and number
         }
 
         // Helper function to get an image URL by its number
         function getImageUrlByNumber(imgNumber) {
             const paddedIndex = String(imgNumber).padStart(3, '0');
-            return `${imageBaseUrl}${paddedIndex}.jpg`;
+            return `<span class="math-inline">\{imageBaseUrl\}</span>{paddedIndex}.jpg`;
         }
 
-        // Function to apply styles based on provided properties (or random if no properties provided)
-        function applySpecificStyles(bgNum, frameNum, h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx) {
+        // Function to apply specific font/color styles based on provided indices
+        function applySpecificStyles(h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx) {
             const mainTitle = document.querySelector('header h1');
             const navLinks = document.querySelectorAll('nav ul li a');
             const mainHeading = document.querySelector('main h2');
             const highlightHeadings = document.querySelectorAll('.highlight-item h3');
 
-            // Apply font/color styles
             if (mainTitle) {
                 mainTitle.style.fontFamily = fontFamilies[h1FontIdx];
                 mainTitle.style.color = textColors[h1ColorIdx];
@@ -402,11 +400,7 @@
                     h3.style.color = textColors[h3ColorIdx];
                 });
             }
-            
-            // Return the parameters used, useful for seed generation
-            return { bgNum, frameNum, h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx };
         }
-
 
         // Function to update the background AND framed image based on mode or provided seed
         function updateBackground(seedComponents = null) { 
@@ -416,21 +410,27 @@
             
             let backgroundImageUrl; 
             let framedImageUrl;
-            let capturedSeedComponents; // To store components for seed string
+            let currentBgNum; // To store number for seed string
+            let currentFrameNum; // To store number for seed string
+
+            let h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx;
 
             if (seedComponents) { // If a seed is provided, apply it directly
                 isRandomMode = false; // Applying a seed means it's no longer 'random' in the usual sense
-                toggleButton.textContent = "Something Different"; // Button implies going to random
 
                 backgroundImageUrl = getImageUrlByNumber(seedComponents.bgNum);
                 framedImageUrl = getImageUrlByNumber(seedComponents.frameNum);
                 
-                capturedSeedComponents = applySpecificStyles(
-                    seedComponents.h1FontIdx, seedComponents.h1ColorIdx,
-                    seedComponents.navColorIdx,
-                    seedComponents.h2FontIdx, seedComponents.h2ColorIdx,
-                    seedComponents.h3FontIdx, seedComponents.h3ColorIdx
-                );
+                h1FontIdx = seedComponents.h1FontIdx;
+                h1ColorIdx = seedComponents.h1ColorIdx;
+                navColorIdx = seedComponents.navColorIdx;
+                h2FontIdx = seedComponents.h2FontIdx;
+                h2ColorIdx = seedComponents.h2ColorIdx;
+                h3FontIdx = seedComponents.h3FontIdx;
+                h3ColorIdx = seedComponents.h3ColorIdx;
+
+                currentBgNum = seedComponents.bgNum;
+                currentFrameNum = seedComponents.frameNum;
                 
                 console.log('Applied seed:', seedComponents);
 
@@ -446,9 +446,9 @@
                 backgroundImageUrl = selectedBg.url;
                 framedImageUrl = selectedFrame.url;
                 
-                toggleButton.textContent = "Something Comfortable"; 
-                
-                // Capture current random selections for seed
+                currentBgNum = selectedBg.number;
+                currentFrameNum = selectedFrame.number;
+
                 const randomH1Font = getRandomItem(fontFamilies);
                 const randomH1Color = getRandomItem(textColors);
                 const randomNavColor = getRandomItem(textColors);
@@ -457,34 +457,30 @@
                 const randomH3Font = getRandomItem(fontFamilies);
                 const randomH3Color = getRandomItem(textColors);
 
-                capturedSeedComponents = applySpecificStyles(
-                    randomH1Font.index, randomH1Color.index,
-                    randomNavColor.index,
-                    randomH2Font.index, randomH2Color.index,
-                    randomH3Font.index, randomH3Color.index
-                );
-
-                capturedSeedComponents.bgNum = selectedBg.number;
-                capturedSeedComponents.frameNum = selectedFrame.number;
+                h1FontIdx = randomH1Font.index;
+                h1ColorIdx = randomH1Color.index;
+                navColorIdx = randomNavColor.index;
+                h2FontIdx = randomH2Font.index;
+                h2ColorIdx = randomH2Color.index;
+                h3FontIdx = randomH3Font.index;
+                h3ColorIdx = randomH3Color.index;
                 
                 console.log('Random mode: Background:', backgroundImageUrl, 'Framed:', framedImageUrl);
 
-            } else { // No seed, and we are in fixed mode
+            } else { // No seed, and we are in fixed mode (from toggle)
                 backgroundImageUrl = fixedImageUrl;
                 framedImageUrl = framedPortraitImageUrl; 
 
-                toggleButton.textContent = "Something Different"; 
+                currentBgNum = fixedImageNumber;
+                currentFrameNum = framedPortraitImageNumber;
 
-                // Apply fixed, legible styles
-                capturedSeedComponents = applySpecificStyles(
-                    fontFamilies.indexOf(fixedHeadingFont), textColors.indexOf(fixedHeadingColor),
-                    textColors.indexOf(fixedNavColor),
-                    fontFamilies.indexOf(fixedH2Font), textColors.indexOf(fixedH2Color),
-                    fontFamilies.indexOf(fixedH3Font), textColors.indexOf(fixedH3Color)
-                );
-
-                capturedSeedComponents.bgNum = fixedImageNumber;
-                capturedSeedComponents.frameNum = framedPortraitImageNumber;
+                h1FontIdx = fontFamilies.indexOf(fixedHeadingFont);
+                h1ColorIdx = textColors.indexOf(fixedHeadingColor);
+                navColorIdx = textColors.indexOf(fixedNavColor);
+                h2FontIdx = fontFamilies.indexOf(fixedH2Font);
+                h2ColorIdx = textColors.indexOf(fixedH2Color);
+                h3FontIdx = fontFamilies.indexOf(fixedH3Font);
+                h3ColorIdx = textColors.indexOf(fixedH3Color);
 
                 console.log('Fixed mode: Background:', backgroundImageUrl, 'Framed:', framedImageUrl);
             }
@@ -495,18 +491,29 @@
                 framedImageElement.src = framedImageUrl; 
             }
 
+            // Apply font/color styles using the determined indices
+            applySpecificStyles(h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx);
+
+            // --- Update Button Text ---
+            if (isRandomMode) {
+                toggleButton.textContent = "Something Comfortable"; // Showing random, button will go to fixed
+            } else {
+                toggleButton.textContent = "Something Different"; // Showing fixed/seeded, button will go to random
+            }
+
+
             // --- Generate and Display the Seed String ---
-            if (uniqueSeedInput && capturedSeedComponents) {
+            if (uniqueSeedInput) {
                 const seedString = 
-                    String(capturedSeedComponents.bgNum).padStart(3, '0') + '-' +
-                    String(capturedSeedComponents.frameNum).padStart(3, '0') + '-' +
-                    capturedSeedComponents.h1FontIdx + '-' +
-                    capturedSeedComponents.h1ColorIdx + '-' +
-                    capturedSeedComponents.navColorIdx + '-' +
-                    capturedSeedComponents.h2FontIdx + '-' +
-                    capturedSeedComponents.h2ColorIdx + '-' +
-                    capturedSeedComponents.h3FontIdx + '-' +
-                    capturedSeedComponents.h3ColorIdx;
+                    String(currentBgNum).padStart(3, '0') + '-' +
+                    String(currentFrameNum).padStart(3, '0') + '-' +
+                    h1FontIdx + '-' +
+                    h1ColorIdx + '-' +
+                    navColorIdx + '-' +
+                    h2FontIdx + '-' +
+                    h2ColorIdx + '-' +
+                    h3FontIdx + '-' +
+                    h3ColorIdx;
                 uniqueSeedInput.value = seedString;
             }
         }
@@ -516,17 +523,11 @@
             // Initial load of background and framed image, AND initial heading styles
             updateBackground(); 
 
-            // Button Click Listener
+            // Toggle Button Listener
             const toggleButton = document.getElementById('toggleImageButton');
             if (toggleButton) { 
                 toggleButton.addEventListener('click', () => {
-                    // If we were in a seeded state, revert to truly random when toggling
-                    if (!isRandomMode && !isInitialLoad) { // isInitialLoad is not needed here
-                         // When toggling from fixed/seeded state, next state is always random
-                         isRandomMode = true; 
-                    } else {
-                        isRandomMode = !isRandomMode;
-                    }
+                    isRandomMode = !isRandomMode; // Simply toggle the mode
                     updateBackground(); 
                 });
             } else {
@@ -539,57 +540,3 @@
                 applySeedButton.addEventListener('click', () => {
                     const seedString = document.getElementById('uniqueSeedInput').value;
                     const parts = seedString.split('-');
-                    if (parts.length === 9) { // Check if all parts are present
-                        const seedComponents = {
-                            bgNum: parseInt(parts[0], 10),
-                            frameNum: parseInt(parts[1], 10),
-                            h1FontIdx: parseInt(parts[2], 10),
-                            h1ColorIdx: parseInt(parts[3], 10),
-                            navColorIdx: parseInt(parts[4], 10),
-                            h2FontIdx: parseInt(parts[5], 10),
-                            h2ColorIdx: parseInt(parts[6], 10),
-                            h3FontIdx: parseInt(parts[7], 10),
-                            h3ColorIdx: parseInt(parts[8], 10)
-                        };
-                        
-                        // Basic validation: check ranges
-                        const isValid = 
-                            seedComponents.bgNum >= 1 && seedComponents.bgNum <= totalImages &&
-                            seedComponents.frameNum >= 1 && seedComponents.frameNum <= totalImages &&
-                            seedComponents.h1FontIdx >= 0 && seedComponents.h1FontIdx < fontFamilies.length &&
-                            seedComponents.h1ColorIdx >= 0 && seedComponents.h1ColorIdx < textColors.length &&
-                            seedComponents.navColorIdx >= 0 && seedComponents.navColorIdx < textColors.length &&
-                            seedComponents.h2FontIdx >= 0 && seedComponents.h2FontIdx < fontFamilies.length &&
-                            seedComponents.h2ColorIdx >= 0 && seedComponents.h2ColorIdx < textColors.length &&
-                            seedComponents.h3FontIdx >= 0 && seedComponents.h3FontIdx < fontFamilies.length &&
-                            seedComponents.h3ColorIdx >= 0 && seedComponents.h3ColorIdx < textColors.length;
-
-                        if (isValid) {
-                            updateBackground(seedComponents);
-                            isRandomMode = false; // Applying a seed means it's not random anymore
-                            // Button text already updated by updateBackground
-                        } else {
-                            alert("Invalid seed string. Please check the format and values.");
-                        }
-                    } else {
-                        alert("Invalid seed format. Expected X-X-X-X-X-X-X-X-X.");
-                    }
-                });
-            }
-
-            // Copy Seed Button Listener
-            const copySeedButton = document.getElementById('copySeedButton');
-            if (copySeedButton) {
-                copySeedButton.addEventListener('click', () => {
-                    const seedInput = document.getElementById('uniqueSeedInput');
-                    seedInput.select();
-                    seedInput.setSelectionRange(0, 99999); // For mobile devices
-                    document.execCommand('copy');
-                    alert('Seed copied to clipboard!');
-                });
-            }
-        });
-    </script>
-
-</body>
-</html>
