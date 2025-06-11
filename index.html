@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial="initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>The Rangebow Festival - Arts, Music, Food</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -305,7 +305,8 @@
 
         <div class="seed-container">
             <label for="uniqueSeedInput">Unique Seed:</label>
-            <input type="text" id="uniqueSeedInput"> <button id="applySeedButton">Apply Seed</button>
+            <input type="text" id="uniqueSeedInput"> 
+            <button id="applySeedButton">Apply Seed</button>
             <button id="copySeedButton">Copy Current Seed</button>
         </div>
 
@@ -415,128 +416,4 @@
 
             let h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx;
 
-            if (seedComponents) { // If a seed is provided, apply it directly
-                isRandomMode = false; // Applying a seed means it's no longer 'random' in the usual sense
-
-                backgroundImageUrl = getImageUrlByNumber(seedComponents.bgNum);
-                framedImageUrl = getImageUrlByNumber(seedComponents.frameNum);
-                
-                h1FontIdx = seedComponents.h1FontIdx;
-                h1ColorIdx = seedComponents.h1ColorIdx;
-                navColorIdx = seedComponents.navColorIdx;
-                h2FontIdx = seedComponents.h2FontIdx;
-                h2ColorIdx = seedComponents.h2ColorIdx;
-                h3FontIdx = seedComponents.h3FontIdx;
-                h3ColorIdx = seedComponents.h3ColorIdx;
-
-                currentBgNum = seedComponents.bgNum;
-                currentFrameNum = seedComponents.frameNum;
-                
-                console.log('Applied seed:', seedComponents);
-
-            } else if (isRandomMode) { // If no seed, and we are in random mode
-                let selectedBg = getRandomImageUrl();
-                let selectedFrame = getRandomImageUrl();
-                
-                // Ensure framed image is different from background
-                while (selectedFrame.url === selectedBg.url) {
-                    selectedFrame = getRandomImageUrl();
-                }
-
-                backgroundImageUrl = selectedBg.url;
-                framedImageUrl = selectedFrame.url;
-                
-                currentBgNum = selectedBg.number;
-                currentFrameNum = selectedFrame.number;
-
-                const randomH1Font = getRandomItem(fontFamilies);
-                const randomH1Color = getRandomItem(textColors);
-                const randomNavColor = getRandomItem(textColors);
-                const randomH2Font = getRandomItem(fontFamilies);
-                const randomH2Color = getRandomItem(textColors);
-                const randomH3Font = getRandomItem(fontFamilies);
-                const randomH3Color = getRandomItem(textColors);
-
-                h1FontIdx = randomH1Font.index;
-                h1ColorIdx = randomH1Color.index;
-                navColorIdx = randomNavColor.index;
-                h2FontIdx = randomH2Font.index;
-                h2ColorIdx = randomH2Color.index;
-                h3FontIdx = randomH3Font.index;
-                h3ColorIdx = randomH3Color.index;
-                
-                console.log('Random mode: Background:', backgroundImageUrl, 'Framed:', framedImageUrl);
-
-            } else { // No seed, and we are in fixed mode (from toggle)
-                backgroundImageUrl = fixedImageUrl;
-                framedImageUrl = framedPortraitImageUrl; 
-
-                currentBgNum = fixedImageNumber;
-                currentFrameNum = framedPortraitImageNumber;
-
-                h1FontIdx = fontFamilies.indexOf(fixedHeadingFont);
-                h1ColorIdx = textColors.indexOf(fixedHeadingColor);
-                navColorIdx = textColors.indexOf(fixedNavColor);
-                h2FontIdx = fontFamilies.indexOf(fixedH2Font);
-                h2ColorIdx = textColors.indexOf(fixedH2Color);
-                h3FontIdx = fontFamilies.indexOf(fixedH3Font);
-                h3ColorIdx = textColors.indexOf(fixedH3Color);
-
-                console.log('Fixed mode: Background:', backgroundImageUrl, 'Framed:', framedImageUrl);
-            }
-            
-            // Apply the chosen URLs
-            document.body.style.backgroundImage = `url('${backgroundImageUrl}')`; 
-            if (framedImageElement) { 
-                framedImageElement.src = framedImageUrl; 
-            }
-
-            // Apply font/color styles using the determined indices
-            applySpecificStyles(h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx);
-
-            // --- Update Button Text ---
-            if (isRandomMode) {
-                toggleButton.textContent = "Something Comfortable"; // Showing random, button will go to fixed
-            } else {
-                toggleButton.textContent = "Something Different"; // Showing fixed/seeded, button will go to random
-            }
-
-
-            // --- Generate and Display the Seed String ---
-            if (uniqueSeedInput) {
-                const seedString = 
-                    String(currentBgNum).padStart(3, '0') + '-' +
-                    String(currentFrameNum).padStart(3, '0') + '-' +
-                    h1FontIdx + '-' +
-                    h1ColorIdx + '-' +
-                    navColorIdx + '-' +
-                    h2FontIdx + '-' +
-                    h2ColorIdx + '-' +
-                    h3FontIdx + '-' +
-                    h3ColorIdx;
-                uniqueSeedInput.value = seedString;
-            }
-        }
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initial load of background and framed image, AND initial heading styles
-            updateBackground(); 
-
-            // Toggle Button Listener
-            const toggleButton = document.getElementById('toggleImageButton');
-            if (toggleButton) { 
-                toggleButton.addEventListener('click', () => {
-                    isRandomMode = !isRandomMode; // Simply toggle the mode
-                    updateBackground(); 
-                });
-            } else {
-                console.error("Toggle button not found!");
-            }
-
-            // Apply Seed Button Listener
-            const applySeedButton = document.getElementById('applySeedButton');
-            if (applySeedButton) {
-                applySeedButton.addEventListener('click', () => {
-                    const seedString = document.getElementById('uniqueSeedInput').value;
-                    const parts = seedString.split('-');
+            if (seedComponents)
