@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Lato:wght@400;700&family=Playfair+Display:wght@700&family=Open+Sans:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Lato:wght@400;700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Open+Sans:wght@400&display=swap" rel="stylesheet">
 
     <style>
         /* Basic Reset & Body Styling */
@@ -69,7 +69,7 @@
         }
 
         nav ul li a:hover {
-            color: #f72585 !important; /* Brighter on hover, !important to override JS */
+            color: #f72585 !important; 
         }
 
         /* Main Content Area */
@@ -197,6 +197,55 @@
             border-radius: 5px; 
             background-color: #eee; 
         }
+
+        /* Styles for the Seed Input */
+        .seed-container {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            color: white;
+            font-size: 0.95em;
+        }
+
+        .seed-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .seed-container input[type="text"] {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            margin-bottom: 10px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .seed-container button {
+            padding: 10px 20px;
+            background-color: #43aa8b; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .seed-container button:hover {
+            background-color: #368e73;
+        }
     </style>
 </head>
 <body>
@@ -254,6 +303,13 @@
 
         <button id="toggleImageButton">Something Comfortable</button> 
 
+        <div class="seed-container">
+            <label for="uniqueSeedInput">Unique Seed:</label>
+            <input type="text" id="uniqueSeedInput" readonly>
+            <button id="applySeedButton">Apply Seed</button>
+            <button id="copySeedButton">Copy Current Seed</button>
+        </div>
+
     </main>
 
     <footer>
@@ -265,22 +321,22 @@
         const totalImages = 552; 
         const imageBaseUrl = 'https://pub-ec767d62316a441eb6c2ef8cadabc59c.r2.dev/9x16Flamingo_'; 
 
-        const fixedImageNumber = 25; // This is the number for your FIXED background image
+        const fixedImageNumber = 25; 
         const fixedImageUrl = `${imageBaseUrl}${String(fixedImageNumber).padStart(3, '0')}.jpg`;
         
         // Fixed Image for the Frame (always image 26)
-        const framedPortraitImageNumber = 26; // Set to image 26 for the framed portrait
+        const framedPortraitImageNumber = 26; 
         const framedPortraitImageUrl = `${imageBaseUrl}${String(framedPortraitImageNumber).padStart(3, '0')}.jpg`;
 
-        let isRandomMode = true; 
+        let isRandomMode = true; // Tracks if current state is random (true) or fixed/seeded (false)
 
-        // --- Font and Color Randomization Arrays ---
+        // --- Font and Color Randomization Arrays (5 Fonts) ---
         const fontFamilies = [
             "'Pacifico', cursive",
             "'Lato', sans-serif",
             "'Playfair Display', serif",
-            "'Open Sans', sans-serif",
-            "'Bebas Neue', cursive"
+            "'Bebas Neue', cursive", 
+            "'Open Sans', sans-serif" 
         ];
 
         // Curated colors that generally provide some contrast, even with shadow
@@ -293,117 +349,165 @@
             '#000000'    // Black
         ];
 
-        // --- Fixed Font and Color Styles ---
+        // --- Fixed Font and Color Styles for Headings/Nav ---
         const fixedHeadingFont = "'Pacifico', cursive";
-        const fixedHeadingColor = '#d9418c'; // Festival pink
+        const fixedHeadingColor = '#d9418c'; 
         const fixedNavFont = "'Lato', sans-serif";
-        const fixedNavColor = '#7a1d52'; // Darker festival pink
+        const fixedNavColor = '#7a1d52'; 
         const fixedH2Font = "'Lato', sans-serif";
         const fixedH2Color = '#7a1d52'; 
         const fixedH3Font = "'Lato', sans-serif";
         const fixedH3Color = '#7a1d52';
 
         function getRandomItem(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
+            const index = Math.floor(Math.random() * arr.length);
+            return { value: arr[index], index: index }; // Return both value and index
         }
 
         function getRandomImageUrl() {
             const randomIndex = Math.floor(Math.random() * totalImages) + 1;
-            const paddedIndex = String(randomIndex).padStart(3, '0');
+            return { url: `${imageBaseUrl}${String(randomIndex).padStart(3, '0')}.jpg`, number: randomIndex }; // Return URL and number
+        }
+
+        // Helper function to get an image URL by its number
+        function getImageUrlByNumber(imgNumber) {
+            const paddedIndex = String(imgNumber).padStart(3, '0');
             return `${imageBaseUrl}${paddedIndex}.jpg`;
         }
 
-        // Function to update the background AND framed image based on mode
-        function updateBackground() { 
-            const toggleButton = document.getElementById('toggleImageButton');
-            const framedImageElement = document.getElementById('framedImage'); 
-            
-            let currentBackgroundImageUrl; 
-            let currentFramedImageUrl; 
-
-            if (isRandomMode) {
-                // Background is random
-                currentBackgroundImageUrl = getRandomImageUrl();
-                
-                // Framed image is a different random one
-                do {
-                    currentFramedImageUrl = getRandomImageUrl();
-                } while (currentFramedImageUrl === currentBackgroundImageUrl); // Ensure different
-
-                toggleButton.textContent = "Something Comfortable"; 
-                console.log('Random mode: Background:', currentBackgroundImageUrl, 'Framed:', currentFramedImageUrl);
-
-            } else {
-                // Background is fixed
-                currentBackgroundImageUrl = fixedImageUrl;
-                
-                // Framed image is always the fixed portrait (image 26)
-                currentFramedImageUrl = framedPortraitImageUrl; 
-
-                toggleButton.textContent = "Something Different"; 
-                console.log('Fixed mode: Background:', currentBackgroundImageUrl, 'Framed:', currentFramedImageUrl);
-            }
-            
-            // Apply the chosen URLs
-            document.body.style.backgroundImage = `url('${currentBackgroundImageUrl}')`;
-            if (framedImageElement) { // Defensive check
-                framedImageElement.src = currentFramedImageUrl; 
-            }
-
-            // --- Apply Heading Styles Based on Mode ---
-            applyHeadingStyles(isRandomMode);
-        }
-
-        // New function to apply heading styles
-        function applyHeadingStyles(isRandomMode) {
+        // Function to apply styles based on provided properties (or random if no properties provided)
+        function applySpecificStyles(bgNum, frameNum, h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx) {
             const mainTitle = document.querySelector('header h1');
             const navLinks = document.querySelectorAll('nav ul li a');
             const mainHeading = document.querySelector('main h2');
             const highlightHeadings = document.querySelectorAll('.highlight-item h3');
 
-            if (isRandomMode) {
-                // Apply random styles
-                if (mainTitle) {
-                    mainTitle.style.fontFamily = getRandomItem(fontFamilies);
-                    mainTitle.style.color = getRandomItem(textColors);
+            // Apply font/color styles
+            if (mainTitle) {
+                mainTitle.style.fontFamily = fontFamilies[h1FontIdx];
+                mainTitle.style.color = textColors[h1ColorIdx];
+            }
+            if (navLinks) {
+                navLinks.forEach(link => {
+                    link.style.color = textColors[navColorIdx];
+                });
+            }
+            if (mainHeading) {
+                mainHeading.style.fontFamily = fontFamilies[h2FontIdx];
+                mainHeading.style.color = textColors[h2ColorIdx];
+            }
+            if (highlightHeadings) {
+                highlightHeadings.forEach(h3 => {
+                    h3.style.fontFamily = fontFamilies[h3FontIdx];
+                    h3.style.color = textColors[h3ColorIdx];
+                });
+            }
+            
+            // Return the parameters used, useful for seed generation
+            return { bgNum, frameNum, h1FontIdx, h1ColorIdx, navColorIdx, h2FontIdx, h2ColorIdx, h3FontIdx, h3ColorIdx };
+        }
+
+
+        // Function to update the background AND framed image based on mode or provided seed
+        function updateBackground(seedComponents = null) { 
+            const toggleButton = document.getElementById('toggleImageButton');
+            const framedImageElement = document.getElementById('framedImage'); 
+            const uniqueSeedInput = document.getElementById('uniqueSeedInput');
+            
+            let backgroundImageUrl; 
+            let framedImageUrl;
+            let capturedSeedComponents; // To store components for seed string
+
+            if (seedComponents) { // If a seed is provided, apply it directly
+                isRandomMode = false; // Applying a seed means it's no longer 'random' in the usual sense
+                toggleButton.textContent = "Something Different"; // Button implies going to random
+
+                backgroundImageUrl = getImageUrlByNumber(seedComponents.bgNum);
+                framedImageUrl = getImageUrlByNumber(seedComponents.frameNum);
+                
+                capturedSeedComponents = applySpecificStyles(
+                    seedComponents.h1FontIdx, seedComponents.h1ColorIdx,
+                    seedComponents.navColorIdx,
+                    seedComponents.h2FontIdx, seedComponents.h2ColorIdx,
+                    seedComponents.h3FontIdx, seedComponents.h3ColorIdx
+                );
+                
+                console.log('Applied seed:', seedComponents);
+
+            } else if (isRandomMode) { // If no seed, and we are in random mode
+                let selectedBg = getRandomImageUrl();
+                let selectedFrame = getRandomImageUrl();
+                
+                // Ensure framed image is different from background
+                while (selectedFrame.url === selectedBg.url) {
+                    selectedFrame = getRandomImageUrl();
                 }
-                if (navLinks) {
-                    const randomNavLinkColor = getRandomItem(textColors);
-                    navLinks.forEach(link => {
-                        link.style.color = randomNavLinkColor;
-                    });
-                }
-                if (mainHeading) {
-                    mainHeading.style.fontFamily = getRandomItem(fontFamilies);
-                    mainHeading.style.color = getRandomItem(textColors);
-                }
-                if (highlightHeadings) {
-                    highlightHeadings.forEach(h3 => {
-                        h3.style.fontFamily = getRandomItem(fontFamilies);
-                        h3.style.color = getRandomItem(textColors);
-                    });
-                }
-            } else {
+
+                backgroundImageUrl = selectedBg.url;
+                framedImageUrl = selectedFrame.url;
+                
+                toggleButton.textContent = "Something Comfortable"; 
+                
+                // Capture current random selections for seed
+                const randomH1Font = getRandomItem(fontFamilies);
+                const randomH1Color = getRandomItem(textColors);
+                const randomNavColor = getRandomItem(textColors);
+                const randomH2Font = getRandomItem(fontFamilies);
+                const randomH2Color = getRandomItem(textColors);
+                const randomH3Font = getRandomItem(fontFamilies);
+                const randomH3Color = getRandomItem(textColors);
+
+                capturedSeedComponents = applySpecificStyles(
+                    randomH1Font.index, randomH1Color.index,
+                    randomNavColor.index,
+                    randomH2Font.index, randomH2Color.index,
+                    randomH3Font.index, randomH3Color.index
+                );
+
+                capturedSeedComponents.bgNum = selectedBg.number;
+                capturedSeedComponents.frameNum = selectedFrame.number;
+                
+                console.log('Random mode: Background:', backgroundImageUrl, 'Framed:', framedImageUrl);
+
+            } else { // No seed, and we are in fixed mode
+                backgroundImageUrl = fixedImageUrl;
+                framedImageUrl = framedPortraitImageUrl; 
+
+                toggleButton.textContent = "Something Different"; 
+
                 // Apply fixed, legible styles
-                if (mainTitle) {
-                    mainTitle.style.fontFamily = fixedHeadingFont;
-                    mainTitle.style.color = fixedHeadingColor;
-                }
-                if (navLinks) {
-                    navLinks.forEach(link => {
-                        link.style.color = fixedNavColor;
-                    });
-                }
-                if (mainHeading) {
-                    mainHeading.style.fontFamily = fixedH2Font;
-                    mainHeading.style.color = fixedH2Color;
-                }
-                if (highlightHeadings) {
-                    highlightHeadings.forEach(h3 => {
-                        h3.style.fontFamily = fixedH3Font;
-                        h3.style.color = fixedH3Color;
-                    });
-                }
+                capturedSeedComponents = applySpecificStyles(
+                    fontFamilies.indexOf(fixedHeadingFont), textColors.indexOf(fixedHeadingColor),
+                    textColors.indexOf(fixedNavColor),
+                    fontFamilies.indexOf(fixedH2Font), textColors.indexOf(fixedH2Color),
+                    fontFamilies.indexOf(fixedH3Font), textColors.indexOf(fixedH3Color)
+                );
+
+                capturedSeedComponents.bgNum = fixedImageNumber;
+                capturedSeedComponents.frameNum = framedPortraitImageNumber;
+
+                console.log('Fixed mode: Background:', backgroundImageUrl, 'Framed:', framedImageUrl);
+            }
+            
+            // Apply the chosen URLs
+            document.body.style.backgroundImage = `url('${backgroundImageUrl}')`; 
+            if (framedImageElement) { 
+                framedImageElement.src = framedImageUrl; 
+            }
+
+            // --- Generate and Display the Seed String ---
+            if (uniqueSeedInput && capturedSeedComponents) {
+                const seedString = 
+                    String(capturedSeedComponents.bgNum).padStart(3, '0') + '-' +
+                    String(capturedSeedComponents.frameNum).padStart(3, '0') + '-' +
+                    capturedSeedComponents.h1FontIdx + '-' +
+                    capturedSeedComponents.h1ColorIdx + '-' +
+                    capturedSeedComponents.navColorIdx + '-' +
+                    capturedSeedComponents.h2FontIdx + '-' +
+                    capturedSeedComponents.h2ColorIdx + '-' +
+                    capturedSeedComponents.h3FontIdx + '-' +
+                    capturedSeedComponents.h3ColorIdx;
+                uniqueSeedInput.value = seedString;
             }
         }
 
@@ -416,11 +520,73 @@
             const toggleButton = document.getElementById('toggleImageButton');
             if (toggleButton) { 
                 toggleButton.addEventListener('click', () => {
-                    isRandomMode = !isRandomMode; 
-                    updateBackground(); // This will now also call applyHeadingStyles
+                    // If we were in a seeded state, revert to truly random when toggling
+                    if (!isRandomMode && !isInitialLoad) { // isInitialLoad is not needed here
+                         // When toggling from fixed/seeded state, next state is always random
+                         isRandomMode = true; 
+                    } else {
+                        isRandomMode = !isRandomMode;
+                    }
+                    updateBackground(); 
                 });
             } else {
                 console.error("Toggle button not found!");
+            }
+
+            // Apply Seed Button Listener
+            const applySeedButton = document.getElementById('applySeedButton');
+            if (applySeedButton) {
+                applySeedButton.addEventListener('click', () => {
+                    const seedString = document.getElementById('uniqueSeedInput').value;
+                    const parts = seedString.split('-');
+                    if (parts.length === 9) { // Check if all parts are present
+                        const seedComponents = {
+                            bgNum: parseInt(parts[0], 10),
+                            frameNum: parseInt(parts[1], 10),
+                            h1FontIdx: parseInt(parts[2], 10),
+                            h1ColorIdx: parseInt(parts[3], 10),
+                            navColorIdx: parseInt(parts[4], 10),
+                            h2FontIdx: parseInt(parts[5], 10),
+                            h2ColorIdx: parseInt(parts[6], 10),
+                            h3FontIdx: parseInt(parts[7], 10),
+                            h3ColorIdx: parseInt(parts[8], 10)
+                        };
+                        
+                        // Basic validation: check ranges
+                        const isValid = 
+                            seedComponents.bgNum >= 1 && seedComponents.bgNum <= totalImages &&
+                            seedComponents.frameNum >= 1 && seedComponents.frameNum <= totalImages &&
+                            seedComponents.h1FontIdx >= 0 && seedComponents.h1FontIdx < fontFamilies.length &&
+                            seedComponents.h1ColorIdx >= 0 && seedComponents.h1ColorIdx < textColors.length &&
+                            seedComponents.navColorIdx >= 0 && seedComponents.navColorIdx < textColors.length &&
+                            seedComponents.h2FontIdx >= 0 && seedComponents.h2FontIdx < fontFamilies.length &&
+                            seedComponents.h2ColorIdx >= 0 && seedComponents.h2ColorIdx < textColors.length &&
+                            seedComponents.h3FontIdx >= 0 && seedComponents.h3FontIdx < fontFamilies.length &&
+                            seedComponents.h3ColorIdx >= 0 && seedComponents.h3ColorIdx < textColors.length;
+
+                        if (isValid) {
+                            updateBackground(seedComponents);
+                            isRandomMode = false; // Applying a seed means it's not random anymore
+                            // Button text already updated by updateBackground
+                        } else {
+                            alert("Invalid seed string. Please check the format and values.");
+                        }
+                    } else {
+                        alert("Invalid seed format. Expected X-X-X-X-X-X-X-X-X.");
+                    }
+                });
+            }
+
+            // Copy Seed Button Listener
+            const copySeedButton = document.getElementById('copySeedButton');
+            if (copySeedButton) {
+                copySeedButton.addEventListener('click', () => {
+                    const seedInput = document.getElementById('uniqueSeedInput');
+                    seedInput.select();
+                    seedInput.setSelectionRange(0, 99999); // For mobile devices
+                    document.execCommand('copy');
+                    alert('Seed copied to clipboard!');
+                });
             }
         });
     </script>
